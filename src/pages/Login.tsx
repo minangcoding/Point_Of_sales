@@ -98,24 +98,24 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="mx-auto h-32 w-32 relative flex items-center justify-center mb-2">
+        <div className="mx-auto h-40 w-40 sm:h-48 sm:w-48 relative flex items-center justify-center mb-4">
           <img 
             src="/logo.png" 
             alt="Logo" 
-            className="w-full h-full object-contain drop-shadow-md"
+            className="w-full h-full object-contain drop-shadow-xl"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
               document.getElementById('fallback-logo')?.classList.remove('hidden');
             }}
           />
           <div id="fallback-logo" className="absolute inset-0 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hidden">
-            <Utensils className="h-16 w-16 text-white" />
+            <Utensils className="h-20 w-20 sm:h-24 sm:w-24 text-white" />
           </div>
         </div>
-        <h2 className="mt-4 text-center text-3xl font-extrabold text-gray-900 flex flex-col items-center">
+        <h2 className="mt-4 text-center text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">
           Bakso <span className="text-red-600">Prasmanan</span>
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-base sm:text-lg text-gray-600 font-medium tracking-wide">
           Sistem Point of Sale & Manajemen
         </p>
       </div>

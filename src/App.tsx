@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import Users from './pages/admin/Users';
+import Categories from './pages/admin/Categories';
 import Products from './pages/admin/Products';
 import Reports from './pages/admin/Reports';
 
@@ -29,6 +30,7 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="users" element={<Users />} />
+              <Route path="categories" element={<Categories />} />
               <Route path="products" element={<Products />} />
               <Route path="reports" element={<Reports />} />
             </Route>

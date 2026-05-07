@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
 
@@ -40,41 +40,51 @@ export default function Reports() {
   };
 
   const handleExportExcel = () => {
-    const wsData = transactions.map((t) => ({
-      ID: t.id,
-      Tanggal: format(new Date(t.created_at), 'dd/MM/yyyy HH:mm'),
-      Kasir: t.profiles?.name || '-',
-      Total: Number(t.total_amount),
-      Metode: t.payment_method.toUpperCase(),
-      Status: t.status.toUpperCase()
-    }));
+    try {
+      const wsData = transactions.map((t) => ({
+        ID: t.id,
+        Tanggal: format(new Date(t.created_at), 'dd/MM/yyyy HH:mm'),
+        Kasir: t.profiles?.name || '-',
+        Total: Number(t.total_amount) || 0,
+        Metode: (t.payment_method || '').toUpperCase(),
+        Status: (t.status || '').toUpperCase()
+      }));
 
-    const ws = XLSX.utils.json_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Penjualan");
-    XLSX.writeFile(wb, `Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.xlsx`);
+      const ws = XLSX.utils.json_to_sheet(wsData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Penjualan");
+      XLSX.writeFile(wb, `Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.xlsx`);
+    } catch (error) {
+      console.error('Error exporting Excel:', error);
+      alert('Gagal mengekspor Excel.');
+    }
   };
 
   const handleExportPDF = () => {
-    const doc = new jsPDF();
-    doc.text(`Laporan Penjualan (${filter === 'daily' ? 'Harian' : 'Bulanan'})`, 14, 15);
-    
-    const tableColumn = ["Tanggal", "Kasir", "Total", "Metode", "Status"];
-    const tableRows = transactions.map(t => [
-      format(new Date(t.created_at), 'dd/MM/yyyy HH:mm'),
-      t.profiles?.name || '-',
-      `Rp ${Number(t.total_amount).toLocaleString('id-ID')}`,
-      t.payment_method.toUpperCase(),
-      t.status.toUpperCase()
-    ]);
+    try {
+      const doc = new jsPDF();
+      doc.text(`Laporan Penjualan (${filter === 'daily' ? 'Harian' : 'Bulanan'})`, 14, 15);
+      
+      const tableColumn = ["Tanggal", "Kasir", "Total", "Metode", "Status"];
+      const tableRows = transactions.map(t => [
+        format(new Date(t.created_at), 'dd/MM/yyyy HH:mm'),
+        t.profiles?.name || '-',
+        `Rp ${(Number(t.total_amount) || 0).toLocaleString('id-ID')}`,
+        (t.payment_method || '').toUpperCase(),
+        (t.status || '').toUpperCase()
+      ]);
 
-    (doc as any).autoTable({
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
-    });
-    
-    doc.save(`Laporan_Penjualan_${format(new Date(), 'ddMMyyyy')}.pdf`);
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 20,
+      });
+      
+      doc.save(`Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Gagal mengekspor PDF.');
+    }
   };
 
   return (
@@ -102,7 +112,8 @@ export default function Reports() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-         <table className="w-full text-sm text-left">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left whitespace-nowrap">
             <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 font-medium">Tanggal</th>
@@ -131,7 +142,8 @@ export default function Reports() {
                 </tr>
               ))}
             </tbody>
-         </table>
+          </table>
+        </div>
       </div>
     </div>
   );
