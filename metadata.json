@@ -1,0 +1,5 @@
+{
+  "name": "POS Bakso Prasmanan Pakansari",
+  "description": "Web-based POS system with Admin and Operator roles, transaction management, and sales reporting.",
+  "requestFramePermissions": []
+}
