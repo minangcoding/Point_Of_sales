@@ -45,12 +45,6 @@ export default function Login() {
     setLoading(true);
     setError(null);
     
-    // Safety fallback
-    const fallbackTimer = setTimeout(() => {
-      setLoading(false);
-      setError('Waktu koneksi habis. Silakan coba lagi (Pastikan internet stabil dan tidak ada adblocker).');
-    }, 30000);
-
     try {
       if (isSetupMode) {
         // REGISTRATION FLOW (FIRST ADMIN)
@@ -90,7 +84,6 @@ export default function Login() {
     } catch (err: any) {
       setError(err.message || 'Terjadi kesalahan saat login.');
     } finally {
-      clearTimeout(fallbackTimer);
       setLoading(false);
     }
   };
