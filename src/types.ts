@@ -1,6 +1,7 @@
 export type Category = {
   id: string;
   name: string;
+  code?: string;
   created_at: string;
 };
 
