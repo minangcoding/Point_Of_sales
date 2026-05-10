@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ShoppingCart, Plus, Minus, Trash2, QrCode, Banknote, Printer } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
+import QRCode from 'react-qr-code';
 
 type CartItem = Product & { qty: number };
 
@@ -397,19 +398,58 @@ export default function POS() {
       {/* QR Modal */}
       {qrModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4">
-           <div className="bg-white w-full sm:w-[400px] sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in-0 duration-200 text-center p-8">
-              <div className="flex justify-between items-start mb-4">
-                <div className="w-8"></div>
-                <h2 className="text-2xl font-bold text-gray-900">Scan QRIS</h2>
-                <button onClick={() => setQrModal(false)} className="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center font-bold">×</button>
-              </div>
-              <p className="text-gray-500 mb-6">Total Pembayaran: <span className="font-bold text-gray-900 text-xl">Rp {totalAmount.toLocaleString('id-ID')}</span></p>
+           <div className="bg-white w-full sm:w-[380px] sm:rounded-[24px] rounded-t-[24px] overflow-hidden shadow-2xl animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:fade-in-0 duration-300 flex flex-col relative">
+              {/* Close Button */}
+              <button onClick={() => setQrModal(false)} className="absolute top-4 right-4 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full w-8 h-8 flex items-center justify-center font-bold z-10 transition-colors">×</button>
               
-              <div className="bg-gray-100 p-6 rounded-2xl mx-auto w-64 h-64 mb-6 flex items-center justify-center border-4 border-dashed border-gray-300">
-                <QrCode className="w-32 h-32 text-gray-400" />
+              {/* Header QRIS */}
+              <div className="bg-[#ED1F24] p-5 text-center relative overflow-hidden">
+                {/* Decorative background element */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 skew-x-12 translate-x-16 -translate-y-8"></div>
+                
+                <div className="flex justify-center items-center h-10 mb-2 mt-2">
+                   <span className="text-white text-4xl font-extrabold italic tracking-wider drop-shadow-sm">QRIS</span>
+                </div>
+                <div className="bg-black/10 text-white/90 text-[10px] py-1 px-3 rounded-full inline-block font-medium backdrop-blur-sm">
+                   Quick Response Code Indonesian Standard
+                </div>
               </div>
 
-              <p className="text-sm text-gray-500 animate-pulse font-medium">Menunggu pembayaran otomatis dalam 5 detik...</p>
+              {/* QR Content */}
+              <div className="p-8 text-center bg-white">
+                 <h3 className="text-xl font-bold text-gray-900 leading-tight">Bakso Prasmanan</h3>
+                 <p className="text-sm text-gray-500 mb-6 font-mono mt-1">NMID: ID1029384756</p>
+                 
+                 <div className="bg-white p-4 rounded-2xl mx-auto w-64 border-2 border-gray-100 shadow-sm mb-8 relative">
+                    <QRCode value={`QRIS-BAKSOPRASMANAN-${totalAmount}`} size={220} className="w-full h-auto mx-auto" />
+                    {/* Small center logo decoration (optional but common in QRIS) */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                       <div className="bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-md">
+                          <span className="text-[#ED1F24] text-[10px] font-bold italic">QRIS</span>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="bg-blue-50/50 border border-blue-100 text-blue-900 py-4 px-4 rounded-2xl mb-8">
+                   <p className="text-xs font-semibold mb-1 uppercase tracking-wide text-blue-600">Total Pembayaran</p>
+                   <p className="text-3xl font-bold tracking-tight">Rp {totalAmount.toLocaleString('id-ID')}</p>
+                 </div>
+
+                 <div className="flex flex-col items-center justify-center">
+                    <p className="text-sm text-gray-600 animate-pulse font-medium flex items-center gap-2 mb-3">
+                       <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                       Menunggu pembayaran...
+                    </p>
+                    <div className="h-1.5 w-32 bg-gray-100 rounded-full overflow-hidden">
+                       <div className="h-full bg-blue-500 w-1/2 rounded-full animate-pulse transition-all duration-500"></div>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Footer */}
+              <div className="bg-gray-50 border-t border-gray-100 p-4 text-center relative z-0">
+                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Dicetak oleh Bakso Prasmanan</p>
+              </div>
            </div>
         </div>
       )}
