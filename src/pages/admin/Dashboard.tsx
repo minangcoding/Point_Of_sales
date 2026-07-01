@@ -25,6 +25,7 @@ import {
 } from 'recharts';
 
 export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
   const [stats, setStats] = useState({
     todayRevenue: 0,
     totalTransactions: 0,
@@ -39,6 +40,10 @@ export default function Dashboard() {
 
   const [period, setPeriod] = useState<'today' | 'last7days' | 'month' | 'year' | 'all'>('today');
   const [allTransactions, setAllTransactions] = useState<any[]>([]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
 
   useEffect(() => {
@@ -310,80 +315,95 @@ export default function Dashboard() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Pendapatan Hari Ini</h3>
-            <TrendingUp className="h-5 w-5 text-green-500" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 card-hover">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl flex items-center justify-center border border-emerald-100">
+              <TrendingUp className="h-6 w-6 text-emerald-600" />
+            </div>
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-wider">Hari Ini</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{formatCurrency(stats.todayRevenue)}</div>
-          <p className="text-xs text-gray-500 mt-1">Status transaksi sukses (Paid)</p>
+          <div className="text-2xl font-extrabold text-gray-900">{formatCurrency(stats.todayRevenue)}</div>
+          <p className="text-xs text-gray-400 mt-1 font-medium">Pendapatan transaksi paid</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Transaksi Hari Ini</h3>
-            <CreditCard className="h-5 w-5 text-blue-500" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 card-hover">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl flex items-center justify-center border border-blue-100">
+              <CreditCard className="h-6 w-6 text-blue-600" />
+            </div>
+            <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-wider">Hari Ini</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{stats.totalTransactions}</div>
-          <p className="text-xs text-gray-500 mt-1">Jumlah nota cetak</p>
+          <div className="text-2xl font-extrabold text-gray-900">{stats.totalTransactions}</div>
+          <p className="text-xs text-gray-400 mt-1 font-medium">Jumlah nota cetak</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Total Produk</h3>
-            <ShoppingBag className="h-5 w-5 text-orange-500" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 card-hover">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl flex items-center justify-center border border-orange-100">
+              <ShoppingBag className="h-6 w-6 text-orange-600" />
+            </div>
+            <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full uppercase tracking-wider">Aktif</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{stats.totalProducts}</div>
-          <p className="text-xs text-gray-500 mt-1">Item aktif</p>
+          <div className="text-2xl font-extrabold text-gray-900">{stats.totalProducts}</div>
+          <p className="text-xs text-gray-400 mt-1 font-medium">Total produk menu</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between pb-2">
-            <h3 className="text-sm font-medium text-gray-500">Total Karyawan</h3>
-            <Users className="h-5 w-5 text-purple-500" />
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 card-hover">
+          <div className="flex items-center justify-between mb-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl flex items-center justify-center border border-purple-100">
+              <Users className="h-6 w-6 text-purple-600" />
+            </div>
+            <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-full uppercase tracking-wider">Total</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">{stats.totalUsers}</div>
-          <p className="text-xs text-gray-500 mt-1">Admin & Kasir</p>
+          <div className="text-2xl font-extrabold text-gray-900">{stats.totalUsers}</div>
+          <p className="text-xs text-gray-400 mt-1 font-medium">Admin & Operator</p>
         </div>
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
-                Grafik Penjualan
-              </h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Pendapatan berdasarkan periode transaksi paid
-              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center border border-blue-100">
+                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Grafik Penjualan</h3>
+                  <p className="text-sm text-gray-400">Pendapatan berdasarkan periode transaksi paid</p>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-600">Period:</span>
+              <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Periode:</span>
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value as any)}
-                className="border border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 bg-white outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+                className="border border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 bg-white outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100 transition-all"
               >
-                <option value="today">Today</option>
-                <option value="last7days">Last 7 Days</option>
-                <option value="month">This Month</option>
-                <option value="year">This Year</option>
-                <option value="all">All Time</option>
+                <option value="today">Hari Ini</option>
+                <option value="last7days">7 Hari</option>
+                <option value="month">Bulan Ini</option>
+                <option value="year">Tahun Ini</option>
+                <option value="all">Semua</option>
               </select>
             </div>
           </div>
 
-          <div className="h-80">
-            {salesChartData.length === 0 ? (
+          <div className="h-80 min-h-[320px]">
+            {!mounted ? (
+              <div className="h-full flex items-center justify-center text-sm text-gray-400">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+              </div>
+            ) : salesChartData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-sm text-gray-500">
                 Belum ada data penjualan
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" key={`bar-${salesChartData.length}`}>
                 <BarChart data={salesChartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
@@ -428,23 +448,30 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Metode Pembayaran
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Berdasarkan periode yang dipilih
-            </p>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl flex items-center justify-center border border-emerald-100">
+                <CreditCard className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900">Metode Pembayaran</h3>
+                <p className="text-sm text-gray-400">Berdasarkan periode yang dipilih</p>
+              </div>
+            </div>
           </div>
 
-          <div className="h-64">
-            {paymentChartData.length === 0 ? (
+          <div className="h-64 min-h-[256px]">
+            {!mounted ? (
+              <div className="h-full flex items-center justify-center text-sm text-gray-400">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+              </div>
+            ) : paymentChartData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-sm text-gray-500">
                 Belum ada data pembayaran
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" key={`pie-${paymentChartData.length}`}>
                 <PieChart>
                   <Pie
                     data={paymentChartData}
@@ -496,46 +523,56 @@ export default function Dashboard() {
         </div>
       </div>
       {/* Recent Transactions List */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Transaksi Terbaru</h3>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
+              <CreditCard className="h-5 w-5 text-gray-600" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900">Transaksi Terbaru</h3>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left whitespace-nowrap">
-            <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
+            <thead className="text-xs text-gray-400 uppercase bg-gray-50 border-b border-gray-100">
               <tr>
-                <th padding-3="true" className="px-6 py-3 font-medium">Tanggal</th>
-                <th className="px-6 py-3 font-medium">Kasir</th>
-                <th className="px-6 py-3 font-medium">Metode</th>
-                <th className="px-6 py-3 font-medium">Status</th>
-                <th className="px-6 py-3 font-medium text-right">Total</th>
+                <th className="px-6 py-4 font-semibold tracking-wider">Tanggal</th>
+                <th className="px-6 py-4 font-semibold tracking-wider">Kasir</th>
+                <th className="px-6 py-4 font-semibold tracking-wider">Metode</th>
+                <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
+                <th className="px-6 py-4 font-semibold tracking-wider text-right">Total</th>
               </tr>
             </thead>
             <tbody>
               {recentTransactions.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-400">
                     Belum ada transaksi
                   </td>
                 </tr>
               ) : (
-                recentTransactions.map((tx) => (
-                  <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
+                recentTransactions.map((tx, idx) => (
+                  <tr key={tx.id} className="hover:bg-red-50/30 transition-colors group">
+                    <td className="px-6 py-4 font-medium text-gray-600">
                       {format(new Date(tx.created_at), 'dd MMM yyyy, HH:mm', { locale: id })}
                     </td>
-                    <td className="px-6 py-4 capitalize">{tx.profiles?.name || 'Unknown'}</td>
-                    <td className="px-6 py-4 uppercase font-medium">{tx.payment_method}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900 capitalize">{tx.profiles?.name || 'Unknown'}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize
-                        ${tx.status === 'paid' ? 'bg-green-100 text-green-700' : ''}
-                        ${tx.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : ''}
-                        ${tx.status === 'failed' ? 'bg-red-100 text-red-700' : ''}
-                      `}>
-                        {tx.status}
+                      <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold uppercase bg-gray-100 text-gray-700 border border-gray-200">
+                        {tx.payment_method}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right font-medium">
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold capitalize
+                        ${tx.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ''}
+                        ${tx.status === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' : ''}
+                        ${tx.status === 'failed' ? 'bg-red-50 text-red-700 border border-red-200' : ''}
+                        ${tx.status === 'voided' ? 'bg-red-50 text-red-700 border border-red-200 line-through' : ''}
+                      `}>
+                        {tx.status === 'voided' ? 'Dibatalkan' : tx.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right font-bold text-gray-900">
                       {formatCurrency(Number(tx.total_amount))}
                     </td>
                   </tr>

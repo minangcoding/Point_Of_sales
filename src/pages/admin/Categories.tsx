@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Category } from '../../types';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function Categories() {
+  const { showToast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -47,8 +49,9 @@ export default function Categories() {
       }
       setIsCatModalOpen(false);
       fetchData();
+      showToast(editingCat ? "Kategori berhasil diperbarui" : "Kategori berhasil ditambahkan", "success");
     } catch (err: any) {
-      alert(err.message || "Error saving category");
+      showToast(err.message || "Gagal menyimpan kategori", "error");
     }
   };
 
@@ -64,8 +67,9 @@ export default function Categories() {
         fetchData();
         setIsDeleteModalOpen(false);
         setCatToDelete(null);
+        showToast("Kategori berhasil dihapus", "success");
       } catch (err) {
-        alert("Error deleting category");
+        showToast("Gagal menghapus kategori", "error");
         setIsDeleteModalOpen(false);
         setCatToDelete(null);
       }
@@ -102,61 +106,61 @@ export default function Categories() {
           </button>
         </div>
         
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover">
            <div className="overflow-x-auto">
-             <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100">
-                  <tr>
-                    <th className="px-6 py-5 font-semibold tracking-wider">Kode Kategori</th>
-                    <th className="px-6 py-5 font-semibold tracking-wider">Nama Kategori</th>
-                    <th className="px-6 py-5 font-semibold tracking-wider text-center">Created By</th>
-                    <th className="px-6 py-5 font-semibold tracking-wider text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {paginatedCategories.length === 0 ? (
-                    <tr><td colSpan={4} className="px-6 py-16 text-center text-gray-500 bg-gray-50/30">Belum ada kategori.</td></tr>
-                  ) : paginatedCategories.map((cat, index) => (
-                    <tr key={cat.id} className="hover:bg-blue-50/30 transition-colors group">
-                      <td className="px-6 py-4 font-mono text-gray-600 font-medium">
-                        {cat.code || `CAT-${cat.name.substring(0, 3).toUpperCase()}${(index + 1).toString().padStart(2, '0')}`}
-                      </td>
-                      <td className="px-6 py-4 font-bold text-gray-900">{cat.name}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide bg-purple-100 text-purple-700 border border-purple-200">
-                          Admin
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => { setEditingCat(true); setCatForm({id: cat.id, name: cat.name, code: cat.code || `CAT-${cat.name.substring(0, 3).toUpperCase()}${(index + 1).toString().padStart(2, '0')}`}); setIsCatModalOpen(true); }} className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-2 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => confirmDelete(cat.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-             </table>
+              <table className="w-full text-sm text-left whitespace-nowrap">
+                 <thead className="text-xs text-gray-400 uppercase bg-gray-50 border-b border-gray-100">
+                   <tr>
+                     <th className="px-6 py-5 font-semibold tracking-wider">Kode Kategori</th>
+                     <th className="px-6 py-5 font-semibold tracking-wider">Nama Kategori</th>
+                     <th className="px-6 py-5 font-semibold tracking-wider text-center">Dibuat Oleh</th>
+                     <th className="px-6 py-5 font-semibold tracking-wider text-right">Aksi</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y divide-gray-50">
+                   {paginatedCategories.length === 0 ? (
+                     <tr><td colSpan={4} className="px-6 py-16 text-center text-gray-400">Belum ada kategori.</td></tr>
+                   ) : paginatedCategories.map((cat, index) => (
+                     <tr key={cat.id} className="hover:bg-red-50/20 transition-colors group">
+                       <td className="px-6 py-4 font-mono text-gray-500 font-medium">
+                         {cat.code || `CAT-${cat.name.substring(0, 3).toUpperCase()}${(index + 1).toString().padStart(2, '0')}`}
+                       </td>
+                       <td className="px-6 py-4 font-bold text-gray-900">{cat.name}</td>
+                       <td className="px-6 py-4 text-center">
+                         <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold tracking-wide bg-purple-50 text-purple-600 border border-purple-200">
+                           Admin
+                         </span>
+                       </td>
+                       <td className="px-6 py-4 text-right">
+                         <div className="flex items-center justify-end gap-1">
+                           <button onClick={() => { setEditingCat(true); setCatForm({id: cat.id, name: cat.name, code: cat.code || `CAT-${cat.name.substring(0, 3).toUpperCase()}${(index + 1).toString().padStart(2, '0')}`}); setIsCatModalOpen(true); }} className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-all"><Edit2 className="w-4 h-4" /></button>
+                           <button onClick={() => confirmDelete(cat.id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all"><Trash2 className="w-4 h-4" /></button>
+                         </div>
+                       </td>
+                     </tr>
+                   ))}
+                 </tbody>
+              </table>
            </div>
            
            {/* Categories Pagination */}
            {totalCategoryPages > 1 && (
-             <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
-               <span className="text-sm text-gray-500 font-medium">Halaman {categoryPage} dari {totalCategoryPages}</span>
+             <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/80">
+               <span className="text-sm text-gray-400 font-medium">Halaman {categoryPage} dari {totalCategoryPages}</span>
                <div className="flex gap-2">
                  <button 
                    disabled={categoryPage === 1}
                    onClick={() => setCategoryPage(p => Math.max(1, p - 1))}
-                   className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                   className="p-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                  >
-                   <ChevronLeft className="w-5 h-5" />
+                   <ChevronLeft className="w-4 h-4" />
                  </button>
                  <button 
                    disabled={categoryPage === totalCategoryPages}
                    onClick={() => setCategoryPage(p => Math.min(totalCategoryPages, p + 1))}
-                   className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                   className="p-2 rounded-xl border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                  >
-                   <ChevronRight className="w-5 h-5" />
+                   <ChevronRight className="w-4 h-4" />
                  </button>
                </div>
              </div>

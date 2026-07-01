@@ -10,17 +10,19 @@ export type Product = {
   category_id: string;
   name: string;
   price: number;
-  discount?: number; // Tambahkan baris ini (nominal diskon)
-  cost_price?: number; // TAMBAHAN: Harga Modal
+  discount?: number;
+  cost_price?: number;
+  stock?: number;
   image_url?: string;
   created_at: string;
-  categories?: Category; // for joined queries
+  categories?: Category;
 };
 
 // ... (kode tipe lainnya biarkan saja seperti semula)
 export type Profile = {
   id: string;
   name: string;
+  email?: string;
   role: 'admin' | 'operator';
   created_at: string;
 };
@@ -30,7 +32,8 @@ export type Transaction = {
   operator_id: string;
   total_amount: number;
   payment_method: 'cash' | 'qr';
-  status: 'pending' | 'paid' | 'failed';
+  status: 'pending' | 'paid' | 'failed' | 'voided';
+  notes?: string;
   created_at: string;
   profiles?: Profile;
 };

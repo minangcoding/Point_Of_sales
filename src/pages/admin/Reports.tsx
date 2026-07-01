@@ -1,162 +1,3 @@
-// import React, { useState, useEffect } from 'react';
-// import { supabase } from '../../lib/supabase';
-// import { Download } from 'lucide-react';
-// import * as XLSX from 'xlsx';
-// import jsPDF from 'jspdf';
-// import autoTable from 'jspdf-autotable';
-// import { format } from 'date-fns';
-// import { id as localeId } from 'date-fns/locale';
-
-// export default function Reports() {
-//   const [transactions, setTransactions] = useState<any[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [filter, setFilter] = useState<'daily' | 'monthly'>('daily');
-
-//   useEffect(() => {
-//     fetchReports();
-//   }, [filter]);
-
-//   const fetchReports = async () => {
-//     setLoading(true);
-//     try {
-//       let startLimit = new Date();
-//       startLimit.setHours(0,0,0,0);
-
-//       if (filter === 'monthly') {
-//         startLimit.setDate(1); // First day of current month
-//       }
-
-//       const { data } = await supabase
-//         .from('transactions')
-//         .select(`*, profiles:app_users(name)`)
-//         .gte('created_at', startLimit.toISOString())
-//         .order('created_at', { ascending: false });
-
-//       if (data) setTransactions(data);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//     setLoading(false);
-//   };
-
-//   const handleExportExcel = () => {
-//     try {
-//       const wsData = transactions.map((t) => ({
-//         ID: t.id,
-//         Tanggal: format(new Date(t.created_at), 'dd/MM/yyyy HH:mm'),
-//         Kasir: t.profiles?.name || '-',
-//         Total: Number(t.total_amount) || 0,
-//         Metode: (t.payment_method || '').toUpperCase(),
-//         Status: (t.status || '').toUpperCase()
-//       }));
-
-//       const ws = XLSX.utils.json_to_sheet(wsData);
-//       const wb = XLSX.utils.book_new();
-//       XLSX.utils.book_append_sheet(wb, ws, "Penjualan");
-//       XLSX.writeFile(wb, `Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.xlsx`);
-//     } catch (error) {
-//       console.error('Error exporting Excel:', error);
-//       alert('Gagal mengekspor Excel.');
-//     }
-//   };
-
-//   const handleExportPDF = () => {
-//     try {
-//       const doc = new jsPDF();
-//       doc.text(`Laporan Penjualan (${filter === 'daily' ? 'Harian' : 'Bulanan'})`, 14, 15);
-
-//       const tableColumn = ["Tanggal", "Kasir", "Total", "Metode", "Status"];
-//       const tableRows = transactions.map(t => [
-//         format(new Date(t.created_at), 'dd/MM/yyyy HH:mm'),
-//         t.profiles?.name || '-',
-//         `Rp ${(Number(t.total_amount) || 0).toLocaleString('id-ID')}`,
-//         (t.payment_method || '').toUpperCase(),
-//         (t.status || '').toUpperCase()
-//       ]);
-
-//       autoTable(doc, {
-//         head: [tableColumn],
-//         body: tableRows,
-//         startY: 20,
-//       });
-
-//       doc.save(`Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.pdf`);
-//     } catch (error) {
-//       console.error('Error exporting PDF:', error);
-//       alert('Gagal mengekspor PDF.');
-//     }
-//   };
-
-//   return (
-//     <div className="space-y-6">
-//       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-//         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Laporan Penjualan</h2>
-//         <div className="flex flex-wrap items-center gap-2">
-//           <select 
-//             value={filter} 
-//             onChange={(e) => setFilter(e.target.value as 'daily' | 'monthly')}
-//             className="border px-3 py-2 rounded-lg text-sm bg-white"
-//           >
-//             <option value="daily">Hari Ini</option>
-//             <option value="monthly">Bulan Ini</option>
-//           </select>
-
-//           <button onClick={handleExportExcel} className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
-//             <Download className="w-4 h-4" /> Excel
-//           </button>
-
-//           <button onClick={handleExportPDF} className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
-//             <Download className="w-4 h-4" /> PDF
-//           </button>
-//         </div>
-//       </div>
-
-//       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-//         <div className="overflow-x-auto">
-//           <table className="w-full text-sm text-left whitespace-nowrap">
-//             <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
-//               <tr>
-//                 <th className="px-6 py-3 font-medium">Tanggal</th>
-//                 <th className="px-6 py-3 font-medium">Kasir</th>
-//                 <th className="px-6 py-3 font-medium">Metode</th>
-//                 <th className="px-6 py-3 font-medium">Status</th>
-//                 <th className="px-6 py-3 font-medium text-right">Total</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {loading ? (
-//                 <tr><td colSpan={5} className="text-center py-4">Memuat data...</td></tr>
-//               ) : transactions.length === 0 ? (
-//                 <tr><td colSpan={5} className="text-center py-8 text-gray-500">Belum ada transaksi</td></tr>
-//               ) : transactions.map((t) => (
-//                 <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50">
-//                   <td className="px-6 py-4">{format(new Date(t.created_at), 'dd MMM yyyy HH:mm', { locale: localeId })}</td>
-//                   <td className="px-6 py-4 capitalize">{t.profiles?.name || '-'}</td>
-//                   <td className="px-6 py-4 font-bold uppercase">{t.payment_method}</td>
-//                   <td className="px-6 py-4">
-//                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${t.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-//                       {t.status}
-//                     </span>
-//                   </td>
-//                   <td className="px-6 py-4 text-right font-medium">Rp {Number(t.total_amount).toLocaleString('id-ID')}</td>
-//                 </tr>
-//               ))}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Download, TrendingUp, TrendingDown, Award, BarChart3, Layers, DollarSign, Wallet, Calculator } from 'lucide-react';
@@ -165,6 +6,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ProductStat {
   name: string;
@@ -187,6 +29,7 @@ interface FinancialStat {
 }
 
 export default function Reports() {
+  const { showToast } = useToast();
   const [transactions, setTransactions] = useState<any[]>([]);
   const [productStats, setProductStats] = useState<ProductStat[]>([]);
   const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
@@ -298,7 +141,7 @@ export default function Reports() {
       XLSX.writeFile(wb, `Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.xlsx`);
     } catch (error) {
       console.error('Error exporting Excel:', error);
-      alert('Gagal mengekspor Excel.');
+      showToast('Gagal mengekspor Excel.', "error");
     }
   };
 
@@ -325,7 +168,7 @@ export default function Reports() {
       doc.save(`Laporan_Penjualan_${filter}_${format(new Date(), 'ddMMyyyy')}.pdf`);
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      alert('Gagal mengekspor PDF.');
+      showToast('Gagal mengekspor PDF.', "error");
     }
   };
 
@@ -348,28 +191,33 @@ export default function Reports() {
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Laporan & Keuangan</h2>
-          <p className="text-sm text-gray-500 mt-1">Pantau analitik, laba rugi, dan data transaksi usahamu.</p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-50 to-amber-50 rounded-2xl flex items-center justify-center border border-red-100">
+              <BarChart3 className="w-5 h-5 text-red-500" />
+            </div>
+            <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Laporan & Keuangan</h2>
+          </div>
+          <p className="text-sm text-gray-400 ml-[52px] mt-1">Pantau analitik, laba rugi, dan data transaksi usahamu.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* View Toggle */}
-          <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200 mr-2 overflow-x-auto">
+          <div className="flex bg-gray-100 p-1 rounded-2xl border border-gray-200 mr-2 overflow-x-auto">
             <button
               onClick={() => setViewMode('analytics')}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${viewMode === 'analytics' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-5 py-1.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap ${viewMode === 'analytics' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
               Analitik Usaha
             </button>
             <button
               onClick={() => setViewMode('profit')}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${viewMode === 'profit' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-5 py-1.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap ${viewMode === 'profit' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
               Laba Rugi
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-5 py-1.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap ${viewMode === 'table' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
               Data Transaksi
             </button>
@@ -378,7 +226,7 @@ export default function Reports() {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as 'daily' | 'monthly')}
-            className="border-2 border-gray-200 px-3 py-1.5 rounded-lg text-sm bg-white font-medium focus:border-blue-500 outline-none"
+            className="border-2 border-gray-200 px-3 py-2 rounded-2xl text-sm bg-white font-bold focus:border-red-400 focus:ring-4 focus:ring-red-100/50 outline-none transition-all"
           >
             <option value="daily">Hari Ini</option>
             <option value="monthly">Bulan Ini</option>
@@ -386,10 +234,10 @@ export default function Reports() {
 
           {viewMode === 'table' && (
             <>
-              <button onClick={handleExportExcel} className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium shadow-sm transition-colors">
+              <button onClick={handleExportExcel} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 text-sm font-bold transition-all shadow-sm btn-press">
                 <Download className="w-4 h-4" /> Excel
               </button>
-              <button onClick={handleExportPDF} className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium shadow-sm transition-colors">
+              <button onClick={handleExportPDF} className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 text-sm font-bold transition-all shadow-sm btn-press">
                 <Download className="w-4 h-4" /> PDF
               </button>
             </>
@@ -441,32 +289,39 @@ export default function Reports() {
           </div>
 
           {/* Profit Detail Table */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="font-bold text-gray-900 text-lg">Rincian Laba per Produk</h3>
-              <p className="text-xs text-gray-500 mt-1">Daftar margin keuntungan dari masing-masing menu yang terjual.</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover">
+            <div className="px-6 py-5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl flex items-center justify-center border border-emerald-100">
+                  <Calculator className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 text-lg">Rincian Laba per Produk</h3>
+                  <p className="text-xs text-gray-400 mt-0.5">Margin keuntungan dari masing-masing menu yang terjual</p>
+                </div>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
+                <thead className="text-xs text-gray-400 uppercase bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="px-6 py-4 font-semibold">Nama Produk</th>
-                    <th className="px-6 py-4 font-semibold text-center">Terjual</th>
-                    <th className="px-6 py-4 font-semibold text-right">Total Omzet</th>
-                    <th className="px-6 py-4 font-semibold text-right">Total Modal (HPP)</th>
-                    <th className="px-6 py-4 font-semibold text-right bg-green-50/50">Laba Bersih</th>
+                    <th className="px-6 py-4 font-semibold tracking-wider">Nama Produk</th>
+                    <th className="px-6 py-4 font-semibold tracking-wider text-center">Terjual</th>
+                    <th className="px-6 py-4 font-semibold tracking-wider text-right">Omzet</th>
+                    <th className="px-6 py-4 font-semibold tracking-wider text-right">Modal (HPP)</th>
+                    <th className="px-6 py-4 font-semibold tracking-wider text-right">Laba Bersih</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-50">
                   {profitProducts.length === 0 ? (
-                    <tr><td colSpan={5} className="text-center py-12 text-gray-500">Belum ada data laba rugi</td></tr>
+                    <tr><td colSpan={5} className="text-center py-12 text-gray-400">Belum ada data laba rugi</td></tr>
                   ) : profitProducts.map((p, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={idx} className="hover:bg-red-50/20 transition-colors">
                       <td className="px-6 py-4 font-bold text-gray-900">{p.name}</td>
-                      <td className="px-6 py-4 text-center font-medium text-gray-600">{p.qty}x</td>
-                      <td className="px-6 py-4 text-right font-medium text-blue-600">Rp {p.revenue.toLocaleString('id-ID')}</td>
-                      <td className="px-6 py-4 text-right font-medium text-orange-600">Rp {p.cost.toLocaleString('id-ID')}</td>
-                      <td className={`px-6 py-4 text-right font-bold bg-green-50/30 ${p.profit >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                      <td className="px-6 py-4 text-center font-semibold text-gray-600">{p.qty}x</td>
+                      <td className="px-6 py-4 text-right font-bold text-blue-600">Rp {p.revenue.toLocaleString('id-ID')}</td>
+                      <td className="px-6 py-4 text-right font-bold text-orange-500">Rp {p.cost.toLocaleString('id-ID')}</td>
+                      <td className={`px-6 py-4 text-right font-extrabold ${p.profit >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                         {p.profit >= 0 ? '+ ' : '- '}Rp {Math.abs(p.profit).toLocaleString('id-ID')}
                       </td>
                     </tr>
@@ -486,10 +341,10 @@ export default function Reports() {
               <p className="text-gray-500 text-sm">Analitik akan muncul setelah ada transaksi yang berhasil (Paid).</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               {/* Card 1: 5 Produk Terlaris */}
-              <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white rounded-2xl p-6 border border-gray-100 premium-shadow card-hover">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2.5 bg-green-100 text-green-600 rounded-xl">
                     <Award className="w-5 h-5" />
@@ -597,36 +452,37 @@ export default function Reports() {
         </div>
       ) : (
         /* ================= TABLE VIEW ================= */
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in duration-300">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-in fade-in duration-300 card-hover">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-200">
+              <thead className="text-xs text-gray-400 uppercase bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Tanggal</th>
-                  <th className="px-6 py-4 font-semibold">Kasir</th>
-                  <th className="px-6 py-4 font-semibold">Metode</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Total Tagihan</th>
+                  <th className="px-6 py-4 font-semibold tracking-wider">Tanggal</th>
+                  <th className="px-6 py-4 font-semibold tracking-wider">Kasir</th>
+                  <th className="px-6 py-4 font-semibold tracking-wider">Metode</th>
+                  <th className="px-6 py-4 font-semibold tracking-wider">Status</th>
+                  <th className="px-6 py-4 font-semibold tracking-wider text-right">Total Tagihan</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-50">
                 {transactions.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-12 text-gray-500">Belum ada transaksi di periode ini</td></tr>
+                  <tr><td colSpan={5} className="text-center py-12 text-gray-400">Belum ada transaksi di periode ini</td></tr>
                 ) : transactions.map((t) => (
-                  <tr key={t.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={t.id} className="hover:bg-red-50/20 transition-colors">
                     <td className="px-6 py-4 font-medium text-gray-600">{format(new Date(t.created_at), 'dd MMM yyyy HH:mm', { locale: localeId })}</td>
-                    <td className="px-6 py-4 capitalize font-medium text-gray-900">{t.profiles?.name || '-'}</td>
+                    <td className="px-6 py-4 capitalize font-bold text-gray-900">{t.profiles?.name || '-'}</td>
                     <td className="px-6 py-4">
-                      <span className="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-md font-bold uppercase border border-gray-200">
+                      <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1.5 rounded-xl font-bold uppercase border border-gray-200">
                         {t.payment_method}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase ${t.status === 'paid' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200'}`}>
-                        {t.status}
+                      <span className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold tracking-wide uppercase border ${t.status === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : t.status === 'voided' ? 'bg-red-50 text-red-700 border-red-200 line-through' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
+                        {t.status === 'voided' ? 'DIBATALKAN' : t.status}
                       </span>
+                      {t.notes && <p className="text-[10px] text-gray-400 mt-1 max-w-[120px] truncate">{t.notes}</p>}
                     </td>
-                    <td className="px-6 py-4 text-right font-bold text-gray-900 text-base">
+                    <td className="px-6 py-4 text-right font-extrabold text-gray-900 text-base">
                       Rp {Number(t.total_amount).toLocaleString('id-ID')}
                     </td>
                   </tr>

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import { Profile } from '../../types';
+import { useToast } from '../../contexts/ToastContext';
 
 export default function Users() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -83,6 +85,7 @@ export default function Users() {
       }
       setIsModalOpen(false);
       fetchUsers();
+      showToast(editingId ? "Karyawan berhasil diperbarui" : "Karyawan berhasil ditambahkan", "success");
     } catch (err: any) {
       setErrorMsg(err.message || 'Terjadi kesalahan.');
     }
@@ -99,8 +102,9 @@ export default function Users() {
         fetchUsers();
         setIsDeleteModalOpen(false);
         setUserToDelete(null);
+        showToast("Karyawan berhasil dihapus", "success");
       } catch (err: any) {
-        alert(err.message || 'Gagal menghapus pengguna.');
+        showToast(err.message || 'Gagal menghapus pengguna.', "error");
         setIsDeleteModalOpen(false);
         setUserToDelete(null);
       }
@@ -129,50 +133,50 @@ export default function Users() {
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden card-hover">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left whitespace-nowrap">
-            <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100">
+            <thead className="text-xs text-gray-400 uppercase bg-gray-50 border-b border-gray-100">
               <tr>
                 <th className="px-6 py-5 font-semibold tracking-wider">Nama Karyawan</th>
                 <th className="px-6 py-5 font-semibold tracking-wider">Role</th>
                 <th className="px-6 py-5 font-semibold tracking-wider text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-50">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-16 text-center text-gray-500 bg-gray-50/30">
+                  <td colSpan={3} className="px-6 py-16 text-center text-gray-400">
                     Belum ada data karyawan.
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="hover:bg-blue-50/30 transition-colors group">
+                  <tr key={user.id} className="hover:bg-red-50/20 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center font-bold shadow-inner">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-50 to-amber-50 text-red-600 flex items-center justify-center font-bold shadow-sm border border-red-100">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="font-bold text-gray-900">{user.name}</div>
-                          <div className="text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5">
+                          <div className="text-xs text-gray-400 font-medium flex items-center gap-1 mt-0.5">
                             {user.email || 'tanpa email'}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide ${user.role === 'admin' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold tracking-wide ${user.role === 'admin' ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}>
                         {user.role === 'admin' ? 'Admin / Owner' : 'Operator'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => handleOpenModal(user)} className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-2 rounded-lg transition-colors" title="Edit">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => handleOpenModal(user)} className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-all" title="Edit">
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => confirmDelete(user.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Hapus">
+                        <button onClick={() => confirmDelete(user.id)} className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all" title="Hapus">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

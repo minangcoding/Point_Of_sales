@@ -1,1 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', sans-serif;
+
+  --color-bakso-50: #fef2f2;
+  --color-bakso-100: #fee2e2;
+  --color-bakso-200: #fecaca;
+  --color-bakso-300: #fca5a5;
+  --color-bakso-400: #f87171;
+  --color-bakso-500: #ef4444;
+  --color-bakso-600: #dc2626;
+  --color-bakso-700: #b91c1c;
+  --color-bakso-800: #991b1b;
+  --color-bakso-900: #7f1d1d;
+  --color-bakso-950: #450a0a;
+
+  --color-warm-50: #fefcfb;
+  --color-warm-100: #fdf6f0;
+  --color-warm-200: #f9ede1;
+  --color-warm-300: #f2dcc6;
+  --color-warm-400: #e8c6a2;
+  --color-warm-500: #d4a574;
+  --color-warm-600: #b8844e;
+  --color-warm-700: #9a6a3d;
+  --color-warm-800: #7d5533;
+  --color-warm-900: #66452a;
+  --color-warm-950: #382415;
+
+  --color-emerald-light: #d1fae5;
+  --color-amber-light: #fef3c7;
+  --color-red-light: #fee2e2;
+  --color-blue-light: #dbeafe;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 20px; }
+*::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide number input arrows */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* === Premium Utilities === */
+
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.glass-dark {
+  background: rgba(17,24,39,0.78);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.07);
+}
+
+.page-enter {
+  animation: fadeSlideUp 0.35s ease-out;
+}
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.premium-shadow {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.04);
+}
+.premium-shadow-lg {
+  box-shadow: 0 8px 40px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Button press effect */
+.btn-press {
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* Focus ring */
+.focus-ring {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-red-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-all;
+}
+
+/* Scale on hover */
+.scale-hover {
+  transition: transform 0.2s ease;
+}
+.scale-hover:hover {
+  transform: scale(1.03);
+}
