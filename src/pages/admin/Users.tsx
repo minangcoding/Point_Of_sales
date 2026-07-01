@@ -49,13 +49,24 @@ export default function Users() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    
+
     try {
       if (editingId) {
-        const { error } = await supabase.from('app_users').update({
+        const updateData: any = {
           name: formData.name,
-          role: formData.role
-        }).eq('id', editingId);
+          role: formData.role,
+        };
+
+        // Password hanya di-update kalau diisi
+        if (formData.password.trim() !== '') {
+          updateData.password = formData.password;
+        }
+
+        const { error } = await supabase
+          .from('app_users')
+          .update(updateData)
+          .eq('id', editingId);
+
         if (error) throw error;
       } else {
         if (!formData.email || !formData.password) {
@@ -98,7 +109,7 @@ export default function Users() {
 
   if (loading) return (
     <div className="flex justify-center items-center h-64">
-       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
     </div>
   );
 
@@ -119,59 +130,59 @@ export default function Users() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-         <div className="overflow-x-auto">
-           <table className="w-full text-sm text-left whitespace-nowrap">
-              <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left whitespace-nowrap">
+            <thead className="text-xs text-gray-500 uppercase bg-gray-50/80 border-b border-gray-100">
+              <tr>
+                <th className="px-6 py-5 font-semibold tracking-wider">Nama Karyawan</th>
+                <th className="px-6 py-5 font-semibold tracking-wider">Role</th>
+                <th className="px-6 py-5 font-semibold tracking-wider text-right">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {users.length === 0 ? (
                 <tr>
-                  <th className="px-6 py-5 font-semibold tracking-wider">Nama Karyawan</th>
-                  <th className="px-6 py-5 font-semibold tracking-wider">Role</th>
-                  <th className="px-6 py-5 font-semibold tracking-wider text-right">Aksi</th>
+                  <td colSpan={3} className="px-6 py-16 text-center text-gray-500 bg-gray-50/30">
+                    Belum ada data karyawan.
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {users.length === 0 ? (
-                  <tr>
-                    <td colSpan={3} className="px-6 py-16 text-center text-gray-500 bg-gray-50/30">
-                      Belum ada data karyawan.
+              ) : (
+                users.map((user) => (
+                  <tr key={user.id} className="hover:bg-blue-50/30 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center font-bold shadow-inner">
+                          {user.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900">{user.name}</div>
+                          <div className="text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5">
+                            {user.email || 'tanpa email'}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide ${user.role === 'admin' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
+                        {user.role === 'admin' ? 'Admin / Owner' : 'Operator'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => handleOpenModal(user)} className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-2 rounded-lg transition-colors" title="Edit">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => confirmDelete(user.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Hapus">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  users.map((user) => (
-                    <tr key={user.id} className="hover:bg-blue-50/30 transition-colors group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 flex items-center justify-center font-bold shadow-inner">
-                            {user.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-bold text-gray-900">{user.name}</div>
-                            <div className="text-xs text-gray-500 font-medium flex items-center gap-1 mt-0.5">
-                              {user.email || 'tanpa email'}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide ${user.role === 'admin' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}`}>
-                          {user.role === 'admin' ? 'Admin / Owner' : 'Operator'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => handleOpenModal(user)} className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 p-2 rounded-lg transition-colors" title="Edit">
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => confirmDelete(user.id)} className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors" title="Hapus">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-           </table>
-         </div>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {isModalOpen && (
@@ -187,16 +198,16 @@ export default function Users() {
             </div>
             <form onSubmit={handleSubmit} className="p-8 space-y-6">
               {errorMsg && <div className="text-sm font-medium text-red-600 bg-red-50 border border-red-100 p-3.5 rounded-xl">{errorMsg}</div>}
-              
+
               <div className="space-y-5">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap</label>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400" placeholder="Contoh: Budi Santoso" />
+                  <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400" placeholder="Contoh: Budi Santoso" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-2">Peran (Role)</label>
                   <div className="relative">
-                    <select required value={formData.role} onChange={e => setFormData({...formData, role: e.target.value as any})} className="w-full appearance-none border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 bg-white">
+                    <select required value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value as any })} className="w-full appearance-none border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 bg-white">
                       <option value="operator">Operator / Kasir</option>
                       <option value="admin">Admin / Owner</option>
                     </select>
@@ -205,8 +216,25 @@ export default function Users() {
                     </div>
                   </div>
                 </div>
+                {editingId && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Password Baru
+                    </label>
+                    <input
+                      type="password"
+                      value={formData.password}
+                      onChange={e => setFormData({ ...formData, password: e.target.value })}
+                      className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400"
+                      placeholder="Kosongkan jika tidak ingin ubah password"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">
+                      Isi hanya jika ingin mengganti password karyawan.
+                    </p>
+                  </div>
+                )}
               </div>
-              
+
               {!editingId && (
                 <div className="pt-6 mt-4 border-t border-gray-100 bg-gray-50/50 -mx-8 px-8 pb-2">
                   <p className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -215,16 +243,31 @@ export default function Users() {
                   <div className="space-y-5 mb-2">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Email</label>
-                      <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full border-2 border-white shadow-sm rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400 bg-white" placeholder="email@contoh.com" />
+                      <input
+                        required
+                        type="email"
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full border-2 border-white shadow-sm rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400 bg-white"
+                        placeholder="email@contoh.com"
+                      />
                     </div>
+
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Password Login</label>
-                      <input required type="password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full border-2 border-white shadow-sm rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400 bg-white" placeholder="Minimal 6 karakter rahasia" />
+                      <input
+                        required
+                        type="password"
+                        value={formData.password}
+                        onChange={e => setFormData({ ...formData, password: e.target.value })}
+                        className="w-full border-2 border-white shadow-sm rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 transition-all font-semibold text-gray-900 placeholder:font-medium placeholder:text-gray-400 bg-white"
+                        placeholder="Minimal 6 karakter rahasia"
+                      />
                     </div>
                   </div>
                 </div>
               )}
-              
+
               <div className="pt-6 flex justify-end gap-3 mt-2">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-colors">Batal</button>
                 <button type="submit" className="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex-1 sm:flex-none">Simpan Data</button>
@@ -244,17 +287,17 @@ export default function Users() {
               </div>
               <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight">Hapus Karyawan?</h3>
               <p className="text-sm text-gray-500 font-medium">Anda yakin ingin menghapus data karyawan ini? Tindakan ini tidak dapat dibatalkan.</p>
-              
+
               <div className="pt-2 flex gap-3">
-                <button 
-                  type="button" 
-                  onClick={() => { setIsDeleteModalOpen(false); setUserToDelete(null); }} 
+                <button
+                  type="button"
+                  onClick={() => { setIsDeleteModalOpen(false); setUserToDelete(null); }}
                   className="flex-1 px-4 py-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50 hover:text-gray-900 transition-colors"
                 >
                   Batal
                 </button>
-                <button 
-                  onClick={handleDelete} 
+                <button
+                  onClick={handleDelete}
                   className="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-all shadow-md hover:shadow-lg active:scale-95"
                 >
                   Ya, Hapus

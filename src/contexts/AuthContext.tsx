@@ -18,11 +18,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
-  setProfile: () => {},
-  signOut: async () => {},
+  setProfile: () => { },
+  signOut: async () => { },
 });
 
-export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,12 +36,12 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
       if (stored) {
         const parsed = JSON.parse(stored);
         if (['kasir', 'karyawan'].includes(parsed.role?.toLowerCase())) {
-           parsed.role = 'operator';
-           localStorage.setItem('pos_user', JSON.stringify(parsed));
+          parsed.role = 'operator';
+          localStorage.setItem('pos_user', JSON.stringify(parsed));
         }
         setProfile(parsed);
       }
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       localStorage.removeItem('pos_user');
       setProfile(null);
